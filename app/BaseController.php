@@ -103,4 +103,14 @@ abstract class BaseController
             'data' => $data,
         ]);
     }
+
+    protected function mustAdmin()
+    {
+        $password = env('lesson.password');
+        $token = input('token');
+
+        if ($token !== $password) {
+            $this->abort(1000, '您无权执行该操作');
+        }
+    }
 }

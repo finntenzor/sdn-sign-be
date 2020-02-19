@@ -10,11 +10,9 @@
 // +----------------------------------------------------------------------
 use think\facade\Route;
 
-Route::get('think', function () {
-    return 'hello,ThinkPHP6!';
-});
+Route::post('api/lesson/create', 'index/createLesson');
+Route::post('api/lesson/query', 'index/queryLesson');
 
-Route::get('hello/:name', 'index/hello');
-
-Route::get('api/test1', 'index/test1');
-Route::get('api/test2', 'index/test2');
+Route::post('api/sign/create', 'index/createSign');
+Route::post('api/sign/confirm', 'index/confirmSign');
+Route::post('api/sign/query', 'index/querySign');

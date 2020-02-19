@@ -2,32 +2,99 @@
 namespace app\controller;
 
 use app\BaseController;
+use app\model\Lesson;
+use app\model\Sign;
+use DateTime;
 
 class Index extends BaseController
 {
-    public function index()
+    public function createLesson()
     {
-        return '<style type="text/css">*{ padding: 0; margin: 0; } div{ padding: 4px 48px;} a{color:#2E5CD5;cursor: pointer;text-decoration: none} a:hover{text-decoration:underline; } body{ background: #fff; font-family: "Century Gothic","Microsoft yahei"; color: #333;font-size:18px;} h1{ font-size: 100px; font-weight: normal; margin-bottom: 12px; } p{ line-height: 1.6em; font-size: 42px }</style><div style="padding: 24px 48px;"> <h1>:) 2020新春快乐</h1><p> ThinkPHP V' . \think\facade\App::version() . '<br/><span style="font-size:30px;">14载初心不改 - 你值得信赖的PHP框架</span></p><span style="font-size:25px;">[ V6.0 版本由 <a href="https://www.yisu.com/" target="yisu">亿速云</a> 独家赞助发布 ]</span></div><script type="text/javascript" src="https://tajs.qq.com/stats?sId=64890268" charset="UTF-8"></script><script type="text/javascript" src="https://e.topthink.com/Public/static/client.js"></script><think id="ee9b1aa918103c4fc"></think>';
+        $this->mustAdmin();
+
+        $lesson = new Lesson();
+        $lesson->lesson_section = input('lesson_section');
+        $lesson->start_time = date("Y-m-d H:i:s", input('start_time'));
+        $lesson->end_time = date("Y-m-d H:i:s", input('end_time'));
+        $lesson->sign_type = input('sign_type');
+        $lesson->sign_password = input('sign_password');
+        $lesson->save();
+    
+        return $this->data($lesson);
     }
 
-    public function hello($name = 'ThinkPHP6')
+    public function queryLesson()
     {
-        return 'hello,' . $name;
+        return $this->data(
+            Lesson::paginate(input('count')),
+        );
     }
 
-    public function test1()
+    public function createSign()
     {
-        return $this->data([
-            'ip' => $this->request->ip(),
-        ]);
+        $lesson_id = input('lesson_id');
+        $lesson = Lesson::where('id', $lesson_id)->find();
+
+        if (!$lesson) {
+            $this->abort(2000, '没有找到该签到');
+        }
+
+        $start_time = strtotime($lesson->start_time);
+        $end_time = strtotime($lesson->end_time);
+        $now_time = time();
+
+        if (!($start_time <= $now_time && $now_time <= $end_time)) {
+            $this->abort(2001, '不在签到的时间内');
+        }
+
+        if ($lesson->sign_type === 1) {
+            if ($lesson->sign_password !== input('password')) {
+                $this->abort(2002, '密码错误');
+            }
+        }
+
+        $answer = $lesson->sign_type === 2 ? input('answer') : '';
+        $status = $lesson->sign_type === 2 ? 0 : 1;
+
+        $sign = new Sign();
+        $sign->lesson_id = $lesson_id;
+        $sign->class_name = input('class_name');
+        $sign->real_name = input('real_name');
+        $sign->user_ip = $this->request->ip();
+        $sign->answer = $answer;
+        $sign->status = $status;
+        $sign->save();
+
+        return $this->data($sign);
     }
 
-    public function test2()
+    public function confirmSign()
     {
-        $this->abort(1000, 'ssss');
+        $this->mustAdmin();
+
+        $sign_id = input('sign_id');
+        $sign = Sign::where('id', $sign_id)->find();
+
+        if (!$sign) {
+            $this->abort(2003, '没有找到该签到');
+        }
         
-        return json([
-            'ss'
-        ]);
+        if ($sign->status === 1) {
+            $this->abort(2004, '已经确认签到');
+        }
+
+        $sign->status = 1;
+        $sign->save();
+
+        return $this->data($sign);
+    }
+
+    public function querySign()
+    {
+        $lesson_id = input('lesson_id');
+
+        return $this->data(
+            Sign::where('lesson_id', $lesson_id)->paginate(input('count')),
+        );
     }
 }
