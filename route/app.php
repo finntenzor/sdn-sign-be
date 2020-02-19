@@ -16,3 +16,4 @@ Route::post('api/lesson/query', 'index/queryLesson');
 Route::post('api/sign/create', 'index/createSign');
 Route::post('api/sign/confirm', 'index/confirmSign');
 Route::post('api/sign/query', 'index/querySign');
+Route::post('api/sign/is', 'index/isSigned');

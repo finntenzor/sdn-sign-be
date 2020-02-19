@@ -4,7 +4,6 @@ namespace app\controller;
 use app\BaseController;
 use app\model\Lesson;
 use app\model\Sign;
-use DateTime;
 
 class Index extends BaseController
 {
@@ -18,6 +17,7 @@ class Index extends BaseController
         $lesson->end_time = date("Y-m-d H:i:s", input('end_time'));
         $lesson->sign_type = input('sign_type');
         $lesson->sign_password = input('sign_password');
+        $lesson->sign_question = input('sign_question');
         $lesson->save();
     
         return $this->data($lesson);
@@ -28,6 +28,34 @@ class Index extends BaseController
         return $this->data(
             Lesson::paginate(input('count')),
         );
+    }
+
+    public function isSigned()
+    {
+        $lesson_id = input('lesson_id');
+        $class_name = input('class_name');
+        $real_name = input('real_name');
+
+        if (!is_array($lesson_id)) {
+            $lesson_id = [$lesson_id];
+        }
+
+        $result = [];
+
+        foreach ($lesson_id as $id) {
+            $extSign = Sign::where([
+                'lesson_id' => $id,
+                'class_name' => $class_name,
+                'real_name' => $real_name,
+            ])->find();
+            $status = $extSign ? $extSign->status : -1;
+            $result[] = [
+                'id' => $id,
+                'status' => $status
+            ];
+        }
+
+        return $this->data($result);
     }
 
     public function createSign()
@@ -53,6 +81,18 @@ class Index extends BaseController
             }
         }
 
+        $class_name = input('class_name');
+        $real_name = input('real_name');
+
+        $extSign = Sign::where([
+            'lesson_id' => $lesson_id,
+            'class_name' => $class_name,
+            'real_name' => $real_name,
+        ])->find();
+        if ($extSign) {
+            $this->abort(2003, '您已签到过');
+        }
+
         $answer = $lesson->sign_type === 2 ? input('answer') : '';
         $status = $lesson->sign_type === 2 ? 0 : 1;
 
@@ -76,11 +116,11 @@ class Index extends BaseController
         $sign = Sign::where('id', $sign_id)->find();
 
         if (!$sign) {
-            $this->abort(2003, '没有找到该签到');
+            $this->abort(2004, '没有找到该签到');
         }
         
         if ($sign->status === 1) {
-            $this->abort(2004, '已经确认签到');
+            $this->abort(2005, '已经确认签到');
         }
 
         $sign->status = 1;
