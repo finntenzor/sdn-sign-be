@@ -91,4 +91,16 @@ abstract class BaseController
         return $v->failException(true)->check($data);
     }
 
+    protected function abort(int $code, string $message)
+    {
+        throw new ApiException($code, $message);
+    }
+
+    protected function data($data)
+    {
+        return json([
+            'code' => 0,
+            'data' => $data,
+        ]);
+    }
 }

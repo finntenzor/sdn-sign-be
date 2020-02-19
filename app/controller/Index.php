@@ -14,4 +14,20 @@ class Index extends BaseController
     {
         return 'hello,' . $name;
     }
+
+    public function test1()
+    {
+        return $this->data([
+            'ip' => $this->request->ip(),
+        ]);
+    }
+
+    public function test2()
+    {
+        $this->abort(1000, 'ssss');
+        
+        return json([
+            'ss'
+        ]);
+    }
 }
