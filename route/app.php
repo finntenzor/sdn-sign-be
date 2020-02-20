@@ -14,6 +14,7 @@ Route::post('api/admin/test', 'index/testAdmin');
 
 Route::post('api/lesson/create', 'index/createLesson');
 Route::post('api/lesson/query', 'index/queryLesson');
+Route::post('api/lesson/get', 'index/getLesson');
 
 Route::post('api/sign/create', 'index/createSign');
 Route::post('api/sign/confirm', 'index/confirmSign');

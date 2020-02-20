@@ -1,6 +1,7 @@
 <?php
 namespace app\controller;
 
+use app\ApiException;
 use app\BaseController;
 use app\model\Lesson;
 use app\model\Sign;
@@ -9,9 +10,16 @@ class Index extends BaseController
 {
     public function testAdmin()
     {
-        $this->mustAdmin();
-
-        return $this->data('密码正确');
+        try {
+            $this->mustAdmin();
+            return $this->data([
+                'pass' => true,
+            ]);
+        } catch (ApiException $e) {
+            return $this->data([
+                'pass' => false,
+            ]);
+        }
     }
 
     public function createLesson()
@@ -34,7 +42,14 @@ class Index extends BaseController
     {
         $order = input('order') === 'asc' ? 'asc' : 'desc';
         return $this->data(
-            Lesson::order('order', $order)->paginate(input('count')),
+            Lesson::order('created_at', $order)->paginate(input('count')),
+        );
+    }
+
+    public function getLesson()
+    {
+        return $this->data(
+            Lesson::where('id', input('id'))->find()
         );
     }
 
@@ -142,7 +157,7 @@ class Index extends BaseController
         $lesson_id = input('lesson_id');
 
         return $this->data(
-            Sign::where('lesson_id', $lesson_id)->paginate(input('count')),
+            Sign::where('lesson_id', $lesson_id)->select(),
         );
     }
 }
