@@ -10,6 +10,8 @@
 // +----------------------------------------------------------------------
 use think\facade\Route;
 
+Route::post('api/admin/test', 'index/testAdmin');
+
 Route::post('api/lesson/create', 'index/createLesson');
 Route::post('api/lesson/query', 'index/queryLesson');
 

@@ -7,6 +7,13 @@ use app\model\Sign;
 
 class Index extends BaseController
 {
+    public function testAdmin()
+    {
+        $this->mustAdmin();
+
+        return $this->data('密码正确');
+    }
+
     public function createLesson()
     {
         $this->mustAdmin();
