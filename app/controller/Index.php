@@ -41,8 +41,9 @@ class Index extends BaseController
     public function queryLesson()
     {
         $order = input('order') === 'asc' ? 'asc' : 'desc';
+        $count = input('count');
         return $this->data(
-            Lesson::order('created_at', $order)->paginate(input('count')),
+            Lesson::order('created_at', $order)->paginate($count)
         );
     }
 
