@@ -158,7 +158,7 @@ class Index extends BaseController
         $lesson_id = input('lesson_id');
 
         return $this->data(
-            Sign::where('lesson_id', $lesson_id)->select(),
+            Sign::where('lesson_id', $lesson_id)->select()
         );
     }
 }
